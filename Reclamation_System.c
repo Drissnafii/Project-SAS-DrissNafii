@@ -6,8 +6,6 @@
 #include <time.h>
 
 
-
-
 #define MAX_USERS 100
 #define MAX_LENGTH 50
 
@@ -155,15 +153,6 @@ void displayMainMenu() {
 }
 
     // The Main Function
-
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <ctype.h>
-#include <stdbool.h>
-#include <time.h>
-
-// ... (rest of the code remains unchanged)
 
 int main() {
     
