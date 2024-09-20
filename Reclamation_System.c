@@ -5,6 +5,10 @@
 #include <stdbool.h>
 #include <time.h>
 
+<<<<<<< HEAD
+=======
+
+>>>>>>> 4f7a5f24b42354e8ca789f9a8233b6c1e54035ec
 #define MAX_USERS 100
 #define MAX_LENGTH 50
 #define MAX_RECLAMATIONS 1000
@@ -211,6 +215,7 @@ void entrerReclamation(int userId) {
 
     // Voire la Reclamation
 
+<<<<<<< HEAD
 void voirReclamations(int userId) {
     printf("Vos reclamations :\n");
     for (int i = 0; i < nbrReclamations; i++) {
@@ -229,6 +234,9 @@ void editReclamations() {
         printf("ID: %d \nClient: %s \nStatut: %d \nDescription: %s\n", 
                reclamations[i].id, reclamations[i].clientUsername, reclamations[i].statut, reclamations[i].description);
     }
+=======
+int main() {
+>>>>>>> 4f7a5f24b42354e8ca789f9a8233b6c1e54035ec
     
     int ReclamationID, newStatue;
     printf("Entrez l'ID de la reclamation a mettre a jour : ");
