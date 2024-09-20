@@ -7,4 +7,4 @@ Une application basée sur la console, développée en C pour la gestion des ré
 - Soumission, consultation, modification et suppression des réclamations
 - Priorisation des réclamations et suivi des statuts
 - Recherche et filtrage des réclamations
-- Génération de statistiques et de rapports
+- Génération de statistiques et de rapports 
