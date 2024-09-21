@@ -5,10 +5,45 @@
 #include <stdbool.h>
 #include <time.h>
 
-<<<<<<< HEAD
-=======
+// Structure definitions
+typedef struct {
+    char username[50];
+    char password[50];
+    int role; // 0: Client, 1: Agent, 2: Admin
+    int LoginAttempts;
+    bool Locked;
+} User;
 
->>>>>>> 4f7a5f24b42354e8ca789f9a8233b6c1e54035ec
+typedef struct {
+    int id;
+    char motif[250];
+    char description[250];
+    char categorie[50];
+    int statut; // En attente / En cours / Resolu
+    char clientUsername[50];    
+    int priority; // basse / moyenne / haute priority
+} Reclamation;
+
+// Function prototypes
+
+void inscrire();       //
+int seConnecter();    // >> User Management Functions
+void manageUsers();  //
+
+void entrerReclamation(int userId);                  //
+void voirReclamations(int userId);                  //
+void editReclamation(int userId);                  // >> Reclamations Management Functions
+void searchReclamation();                         //
+void afficherRecByPriority();                    //
+
+int isValidee(const char* nom, const char* password); // >> For password validation
+
+void afficherMenuPrincipal();       //
+void userMenu(int userId);         // >> Menu Management Functions
+void adminMenu(int userId);       //
+void agentMenu(int userId);      //
+
+// Constants
 #define MAX_USERS 100
 #define MAX_LENGTH 50
 #define MAX_RECLAMATIONS 1000
@@ -16,77 +51,17 @@
 #define ROLE_AGENT 1
 #define ROLE_ADMIN 2
 
-    // Structure that manage user
-
-typedef struct {
-    char username[50];
-    char password[50];
-    int role; // 0: Client, 1:Agent, 2:Admin
-    int LoginAttempts;
-    bool Locked;
-} User;
-    
-    // Structure that manage Compaints (Les Reclamations)
-
-typedef struct {
-    int id;
-    char motif[250];
-    char description[250];
-    char categorie[50];
-    int statut;                 // En attente / En cours / Resolu
-    char clientUsername[50];    
-    int priority;               //  basse / moyenne / haute priority
-} Reclamation;
-
+// Global variables
 User Users[MAX_USERS];
 int nbrUsers = 0;
-
 Reclamation reclamations[MAX_RECLAMATIONS];
 int nbrReclamations = 0;
 
-    // Password Validator
+    // in this update of The code I star coding in step by step to ensure better organization and logical flow in my program...
 
-int estValide(const char* nom, const char* password) {
-    int hasUpper = 0, hasLower = 0, hasDigit = 0, hasSpecial = 0;
-    int length = strlen(password);
+    // [1] Start with the user management functions :
 
-    // Le mot de passe doit contenir au moins 8 caracteres
-    if (length < 8) {
-        return 1;
-    }
-    
-    // Ne doit pas contenir le nom d'User
-    if (strstr(password, nom) != NULL) {
-        return 2;
-    }
-
-    // tipe Char Verifications
-    for (int i = 0; i < length; i++) {
-        if (isupper(password[i])) {
-            hasLower = 1;
-        }
-        if (islower(password[i])) {
-            hasUpper = 1;
-        }
-        if (isdigit(password[i])) {
-            hasDigit = 1;
-        }
-        if (strchr("!@#$%^&*", password[i])) {
-            hasSpecial = 1;
-        }
-    }
-
-    // Possible errors...
-    if (!hasLower) return 3;
-    if (!hasUpper) return 4;
-    if (!hasDigit) return 5;
-    if (!hasSpecial) return 6; 
-
-    return 0;
-}
-
-    // Sign Up
-
+        // >> Sign Up
 void inscrire() {
     if (nbrUsers >= MAX_USERS) {
         printf("Nombre maximum d'Utilisateurs atteint.\n");
@@ -113,7 +88,7 @@ void inscrire() {
         fgets(password, sizeof(password), stdin);
         password[strcspn(password, "\n")] = '\0';
 
-        validationResult = estValide(newUser.username, password);
+        validationResult = isValidee(newUser.username, password);
         switch (validationResult) {
             case 0:
                 break; 
@@ -121,7 +96,7 @@ void inscrire() {
                 printf("Le mot de passe doit contenir au moins 8 caracteres. \n\t>> Veuillez reessayer...\n");
                 break;
             case 2:
-                printf("Le mot de passe ne doit pas contenir le nom d'User. \n\t>> Veuillez reessayer...\n");
+                printf("Le mot de passe ne doit pas contenir le nom d'Utilisateur. \n\t>> Veuillez reessayer...\n");
                 break;
             case 3:
                 printf("Le mot de passe doit contenir au moins une lettre majuscule. \n\t>> Veuillez reessayer...\n");
@@ -154,8 +129,7 @@ void inscrire() {
     printf("L'utilisateur est enregistre avec succes.\n");
 }
 
-    // Sign In
-
+        // >> Sign In
 int seConnecter() {
     char username[MAX_LENGTH], password[MAX_LENGTH];
     printf("Entrez votre nom : ");
@@ -192,201 +166,7 @@ int seConnecter() {
     return -1;
 }
 
-    // Entrer la Reclamation 
-
-void entrerReclamation(int userId) {
-    if (nbrReclamations >= MAX_RECLAMATIONS) {
-        printf("Nombre maximum de reclamations atteint.\n");
-        return;
-    }
-
-    Reclamation newReclamation;
-    newReclamation.id = nbrReclamations + 1;
-    printf("Entrez la description de votre reclamation : ");
-    fgets(newReclamation.description, sizeof(newReclamation.description), stdin);
-    newReclamation.description[strcspn(newReclamation.description, "\n")] = '\0';
-    
-    newReclamation.statut = 0;  
-    strcpy(newReclamation.clientUsername, Users[userId].username);
-
-    reclamations[nbrReclamations++] = newReclamation;
-    printf("Reclamation soumise avec succes. ID de la reclamation : %d\n", newReclamation.id);
-}
-
-    // Voire la Reclamation
-
-<<<<<<< HEAD
-void voirReclamations(int userId) {
-    printf("Vos reclamations :\n");
-    for (int i = 0; i < nbrReclamations; i++) {
-        if (strcmp(reclamations[i].clientUsername, Users[userId].username) == 0) {
-            printf("ID: %d  \nStatut: %d  \nDescription: %s\n", 
-                   reclamations[i].id, reclamations[i].statut, reclamations[i].description);
-        }
-    }
-}
-
-    // Editer la Reclamation
-
-void editReclamations() {
-    printf("Toutes les réclamations :\n");
-    for (int i = 0; i < nbrReclamations; i++) {
-        printf("ID: %d \nClient: %s \nStatut: %d \nDescription: %s\n", 
-               reclamations[i].id, reclamations[i].clientUsername, reclamations[i].statut, reclamations[i].description);
-    }
-=======
-int main() {
->>>>>>> 4f7a5f24b42354e8ca789f9a8233b6c1e54035ec
-    
-    int ReclamationID, newStatue;
-    printf("Entrez l'ID de la reclamation a mettre a jour : ");
-    scanf("%d", &ReclamationID);
-    getchar();
-    
-    printf("Entrez le nouveau statut \n[0]: En attente \n[1]: En cours  \n[2]: Resolu \n");
-    printf("\t[x] >>> ");
-    scanf("%d", &newStatue);
-    getchar();
-    
-    for (int i = 0; i < nbrReclamations; i++) {
-        if (reclamations[i].id == ReclamationID) {
-            reclamations[i].statut = newStatue;
-            printf("Statut de la reclamation mis a jour avec succes.\n");
-            return;
-        }
-    }
-    printf("Reclamation non trouvee.\n");
-}
-
-          // >>  User Menu (Limit of editing Reclamations)
-
-void userMenu(int userId) {
-    int choice;
-    do {
-        printf("\n|------- Menu User -------|\n");
-        printf("[1]. Soumettre une reclamation\n");
-        printf("[2]. Voir mes reclamations\n");
-        if (Users[userId].role == 1 || Users[userId].role == 2) {
-            printf("[3]. Gerer les reclamations\n");
-        }
-        if (Users[userId].role == 2) {
-            printf("[4]. Gerer les Users\n");
-        }
-        printf("[5]. Deconnexion\n");
-        printf("\t[x] >>> ");
-        
-        char Choice01[10];
-        fgets(Choice01, sizeof(Choice01), stdin);
-        choice = atoi(Choice01);
-
-        switch(choice) {
-            case 1:
-                entrerReclamation(userId);
-                break;
-            case 2:
-                voirReclamations(userId);
-                break;
-            case 3:
-                if (Users[userId].role == 1 || Users[userId].role == 2) {
-
-                    editReclamations();
-                }
-                break;
-            case 4:
-                if (Users[userId].role == 2) {
-
-                    manageUsers();
-                }
-                break;
-            case 5:
-                printf("Deconnexion...\n");
-                break;
-            default:
-                printf("choice non valide. Veuillez reessayer.\n");
-        }
-    } while (choice != 5);
-}
-    
-         // >> Administrator Menu (Limit of editing Reclamations)
-
-void adminMenu(int userId) {
-    int choice;
-    do {
-        printf("\n|------- Menu Administrateur -------|\n");
-        printf("[1]. Afficher toutes les reclamations\n");
-        printf("[2]. Modifier ou supprimer une reclamation\n");
-        printf("[3]. Rechercher une reclamation\n");
-        printf("[4]. Afficher les reclamations par priorite\n");
-        printf("[5]. Gerer les Users\n");
-        printf("[6]. Deconnexion\n");
-        printf("\t[x] >>> ");
-
-        char Choice01[10];
-        fgets(Choice01, sizeof(Choice01), stdin);
-        choice = atoi(Choice01);
-
-        switch(choice) {
-            case 1:
-                voirReclamations(userId);
-                break;
-            case 2:
-                editReclamation(userId);
-                break;
-            case 3:
-                serchRaclamation();
-                break;
-            case 4:
-                afficheRaclamationsByPrioritee();
-                break;
-            case 5:
-                manageUsers();
-                break;
-            case 6:
-                printf("Deconnexion...\n");
-                break;
-            default:
-                printf("choice invalide.\n");
-        }
-    } while (choice != 6);
-}
-
-         // >> Agent Menu (Limit of editing Reclamations)
-
-void agentMenu(int userId) {
-    int choice;
-    do {
-        printf("\n|------- Menu Agent de Reclamation -------|\n");
-        printf("[1]. Voir mes reclamations\n");
-        printf("[2]. Rechercher une reclamation\n");
-        printf("[3]. Modifier une reclamation\n");
-        printf("[4]. Deconnexion\n");
-        printf("\t[x] >>> ");
-
-        char Choice01[10];
-        fgets(Choice01, sizeof(Choice01), stdin);
-        choice = atoi(Choice01);
-
-        switch(choice) {
-            case 1:
-                voirReclamations(userId);
-                break;
-            case 2:
-                serchRaclamation();
-                break;
-            case 3:
-                editReclamation(userId);
-                break;
-            case 4:
-                printf("Deconnexion...\n");
-                break;
-                default:
-                printf("choice invalide.\n");
-        }
-    } while (choice != 4);
-}
-
-    // Editer le role d'utilisateur 
-
+        // >> Managing Users 
 void manageUsers() {        // ! Just for admins 
     printf("Liste des utilisateurs :\n");
     for (int i = 0; i < nbrUsers; i++) {
@@ -425,20 +205,112 @@ void manageUsers() {        // ! Just for admins
 
 
 
-// edit the reclamations (to add later ...)
 
-void editReclamation(int userId) {}
+    // [2] implement the claims management functions :
 
-// serch for reclamations (to add later ...)
+        // >> Enter Reclamations 
+void entrerReclamation(int userId) {
+    if (nbrReclamations >= MAX_RECLAMATIONS) {
+        printf("Nombre maximum de reclamations atteint.\n");
+        return;
+    }
 
-void serchRaclamation() {}
+    Reclamation newReclamation;
+    newReclamation.id = nbrReclamations + 1;
+    printf("Entrez la description de votre reclamation : ");
+    fgets(newReclamation.description, sizeof(newReclamation.description), stdin);
+    newReclamation.description[strcspn(newReclamation.description, "\n")] = '\0';
+    
+    newReclamation.statut = 0;  
+    strcpy(newReclamation.clientUsername, Users[userId].username);
 
-// see the reclamations by priority (to add later ...)
+    reclamations[nbrReclamations++] = newReclamation;
+    printf("Reclamation soumise avec succes. ID de la reclamation : %d\n", newReclamation.id);
+}
 
-void afficheRaclamationsByPrioritee() {}
+        // >> See Reclamations
+void voirReclamations(int userId) {
+    printf("Affichage des reclamations pour l'utilisateur %d\n", userId);
+    // Implement the logic to display reclamations here
+}
 
-    // Affichage du Menu Principale 
+        // >> Edit Reclamations
+void editReclamations() {
+    int ReclamationID, newStatue;
+    printf("Entrez l'ID de la reclamation a mettre a jour : ");
+    scanf("%d", &ReclamationID);
+    getchar();
+    
+    printf("Entrez le nouveau statut \n[0]: En attente \n[1]: En cours  \n[2]: Resolu \n");
+    printf("\t[x] >>> ");
+    scanf("%d", &newStatue);
+    getchar();
+    
+    for (int i = 0; i < nbrReclamations; i++) {
+        if (reclamations[i].id == ReclamationID) {
+            reclamations[i].statut = newStatue;
+            printf("Statut de la reclamation mis a jour avec succes.\n");
+            return;
+        }
+    }
+    printf("Reclamation non trouvee.\n");
+}
 
+        // >> Search for Reclamations
+void searchReclamation() {}
+
+        // >> See Reclamations by priority
+void afficherRecByPriority() {}
+
+
+
+    // [3] Validation of inputs :
+
+        // >> Password Validator
+int isValidee(const char* nom, const char* password) {
+    int hasUpper = 0, hasLower = 0, hasDigit = 0, hasSpecial = 0;
+    int length = strlen(password);
+
+    // Le mot de passe doit contenir au moins 8 caracteres
+    if (length < 8) {
+        return 1;
+    }
+    
+    // Ne doit pas contenir le nom d'Utilisateur
+    if (strstr(password, nom) != NULL) {
+        return 2;
+    }
+
+    // tipe Char Verifications
+    for (int i = 0; i < length; i++) {
+        if (isupper(password[i])) {
+            hasLower = 1;
+        }
+        if (islower(password[i])) {
+            hasUpper = 1;
+        }
+        if (isdigit(password[i])) {
+            hasDigit = 1;
+        }
+        if (strchr("!@#$%^&*!@#$^&*%_+=?/|~`:;""'<>{} ", password[i])) {
+            hasSpecial = 1;
+        }
+    }
+
+    // Possible errors...
+    if (!hasLower) return 3;
+    if (!hasUpper) return 4;
+    if (!hasDigit) return 5;
+    if (!hasSpecial) return 6; 
+
+    return 0;
+}
+
+
+
+    // [4] Implement menu functions :
+
+        // >> Displaying the Main Menu
 void afficherMenuPrincipal() {
     printf("\n|___________\n");
     printf("\n| Menu Principal:\n");
@@ -448,6 +320,134 @@ void afficherMenuPrincipal() {
     printf(" [4] Afficher les Reclamations (New !)\n");
     printf("\t[x] >>> ");
 }
+
+        // >> User Menu
+void userMenu(int userId) {
+    int choice;
+    do {
+        printf("\n|------- Menu User -------|\n");
+        printf("[1]. Soumettre une reclamation\n");
+        printf("[2]. Voir mes reclamations\n");
+        if (Users[userId].role == 1 || Users[userId].role == 2) {
+            printf("[3]. Gerer les reclamations\n");
+        }
+        if (Users[userId].role == 2) {
+            printf("[4]. Gerer les Users\n");
+        }
+        printf("[5]. Deconnexion\n");
+        printf("\t[x] >>> ");
+        
+        char Choice01[10];
+        fgets(Choice01, sizeof(Choice01), stdin);
+        choice = atoi(Choice01);
+
+        switch(choice) {
+            case 1:
+                entrerReclamation(userId);
+                break;
+            case 2:
+                voirReclamations(userId);
+                break;
+            case 3:
+                if (Users[userId].role == 1 || Users[userId].role == 2) {
+
+                    editReclamation(userId);
+                }
+                break;
+            case 4:
+                if (Users[userId].role == 2) {
+
+                    manageUsers();
+                }
+                break;
+            case 5:
+                printf("Deconnexion...\n");
+                break;
+            default:
+                printf("choice non valide. Veuillez reessayer.\n");
+        }
+    } while (choice != 5);
+}
+    
+        // >> Administrator Menu
+void adminMenu(int userId) {
+    int choice;
+    do {
+        printf("\n|------- Menu Administrateur -------|\n");
+        printf("[1]. Afficher toutes les reclamations\n");
+        printf("[2]. Modifier ou supprimer une reclamation\n");
+        printf("[3]. Rechercher une reclamation\n");
+        printf("[4]. Afficher les reclamations par priorite\n");
+        printf("[5]. Gerer les Users\n");
+        printf("[6]. Deconnexion\n");
+        printf("\t[x] >>> ");
+
+        char Choice01[10];
+        fgets(Choice01, sizeof(Choice01), stdin);
+        choice = atoi(Choice01);
+
+        switch(choice) {
+            case 1:
+                voirReclamations(userId);
+                break;
+            case 2:
+                editReclamation(userId);
+                break;
+            case 3:
+                searchReclamation();
+                break;
+            case 4:
+                afficherRecByPriority();
+                break;
+            case 5:
+                manageUsers();
+                break;
+            case 6:
+                printf("Deconnexion...\n");
+                break;
+            default:
+                printf("choice invalide.\n");
+        }
+    } while (choice != 6);
+}
+
+        // >> Agent Menu
+void agentMenu(int userId) {
+    int choice;
+    do {
+        printf("\n|------- Menu Agent de Reclamation -------|\n");
+        printf("[1]. Voir mes reclamations\n");
+        printf("[2]. Rechercher une reclamation\n");
+        printf("[3]. Modifier une reclamation\n");
+        printf("[4]. Deconnexion\n");
+        printf("\t[x] >>> ");
+
+        char Choice01[10];
+        fgets(Choice01, sizeof(Choice01), stdin);
+        choice = atoi(Choice01);
+
+        switch(choice) {
+            case 1:
+                voirReclamations(userId);
+                break;
+            case 2:
+                searchReclamation();
+                break;
+            case 3:
+                editReclamation(userId);
+                break;
+            case 4:
+                printf("Deconnexion...\n");
+                break;
+                default:
+                printf("choice invalide.\n");
+        }
+    } while (choice != 4);
+}
+
+
+
+
 
 
 
