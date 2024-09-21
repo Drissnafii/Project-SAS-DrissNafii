@@ -230,9 +230,15 @@ void entrerReclamation(int userId) {
 
         // >> See Reclamations
 void voirReclamations(int userId) {
-    printf("Affichage des reclamations pour l'utilisateur %d\n", userId);
-    // Implement the logic to display reclamations here
+    printf("Affichage des reclamations pour l'utilisateur : %s\n", Users[userId].username);
+    for (int i = 0; i < nbrReclamations; i++) {
+        if (strcmp(reclamations[i].clientUsername, Users[userId].username) == 0) {
+            printf("Reclamation ID: %d, Description: %s, Statut: %d\n", 
+                   reclamations[i].id, reclamations[i].description, reclamations[i].statut);
+        }
+    }
 }
+
 
         // >> Edit Reclamations
 void editReclamations() {
