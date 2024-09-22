@@ -24,6 +24,16 @@ typedef struct {
     time_t dateSubmission; // Add Time >>> dada of Reclamation
 } Reclamation;
 
+// categories of Reclamations
+const char categories[5][20] = {
+    "Technique",
+    "Client",
+    "Facturation",
+    "Produit",
+    "Autre"
+};
+const int numCategories = 5;
+
 // Function to count words
 int countWords(char str[]) {
     int count = 0;
@@ -246,7 +256,8 @@ void soumettreReclamation(int userId) {
 
     while (1) {
 
-    printf(">> Entrez le motif de la reclamation : ");
+    printf("Pour Que nous acceptions votre Reclamation, \nvous devez suivre les etapes suivants pour avoir\nune vue d'ensemble de votre Reclamation.\n");
+    printf("\t[x] Le motif (de 3 a 8 mots) >> ");
     fgets(newReclamation.motif, sizeof(newReclamation.motif), stdin);
     newReclamation.motif[strcspn(newReclamation.motif, "\n")] = 0;
 
@@ -265,20 +276,34 @@ void soumettreReclamation(int userId) {
          
     }
 
-
+        // Description of reclamation
     printf(">> Entrez la description detaillee du probleme : ");
     fgets(newReclamation.description, sizeof(newReclamation.description), stdin);
     newReclamation.description[strcspn(newReclamation.description, "\n")] = 0;
 
+        // Categoriy of reclamation (As a choice)
+    printf(">> Entrez la categorie de la reclamation : \n");
+    for (int i = 0; i < numCategories; i++)
+    {
+        printf("%d. %s\n", i + 1, categories[i]);
+    }
 
-    printf(">> Entrez la categorie de la reclamation : ");
-    fgets(newReclamation.categorie, sizeof(newReclamation.categorie), stdin);
-    newReclamation.categorie[strcspn(newReclamation.categorie, "\n")] = 0;
+    int categoryChoice;
+    do {
+        printf("Entrez le numero de la categorie : ");
+        scanf("%d", &categoryChoice);
+        getchar();
 
+        if (categoryChoice < 1 || categoryChoice > numCategories) {
+            printf("Choix invalide. Veuillez reessayer.\n");
+        }
+    } while (categoryChoice < 1 || categoryChoice > numCategories);
 
+    strcpy(newReclamation.categorie, categories[categoryChoice - 1]);
+    
+    // Update Status and date of submission
     newReclamation.statut = 0; // en attent
     strcpy(newReclamation.clientUsername, Users[userId].username);
-
     newReclamation.dateSubmission = time(NULL); 
 
 
@@ -294,16 +319,19 @@ void voirReclamations(int userId) {
     if (userId == -1) { //
 
         for (int i = 0; i < nbrReclamations; i++) {
-            printf("\t> Reclamation ID: %d\n\n", reclamations[i].id);
-            printf("\t> Motif: %s\n\n", reclamations[i].motif);
-            printf("\t> Description: %s\n", reclamations[i].description);
-            printf("\t> Categorie: %s\n", reclamations[i].categorie);
-            printf("\t> Statut: %d\n", reclamations[i].statut);
+            printf(" _______________________________________\n");
+            printf("|\tTous Les Infos de votre Reclamation:\n");
+            printf(" ->>\n");
+            printf(" \t> Reclamation ID: %d\n\n", reclamations[i].id);
+            printf(" \t> Motif: %s\n\n", reclamations[i].motif);
+            printf(" \t> Description: %s\n", reclamations[i].description);
+            printf(" \t> Categorie: %s\n", reclamations[i].categorie);
+            printf(" \t> Statut: %d\n", reclamations[i].statut);
 
-            printf("\t> Client Username: %s\n", reclamations[i].clientUsername);
+            printf(" \t> Client Username: %s\n", reclamations[i].clientUsername);
 
             strftime(dateStr, sizeof(dateStr), "%d/%m/%Y %H:%M:%S", localtime(&reclamations[i].dateSubmission));
-            printf("\t> Date Submission: %s\n", dateStr);
+            printf(" \t> Date Submission: %s\n", dateStr);
         }
     } else { // Display reclamations for the given user
         for (int i = 0; i < nbrReclamations; i++) {
@@ -312,7 +340,7 @@ void voirReclamations(int userId) {
             printf("\t> Motif: %s\n", reclamations[i].motif);
             printf("\t> Description: %s\n", reclamations[i].description);
             printf("\t> Categorie: %s\n", reclamations[i].categorie);
-            printf("\t> Statut: %d\n", reclamations[i].statut);
+            printf("\t> Statut: %d\n", reclamations[i].statut); 
 
                 switch (reclamations[i].statut)
                 {
@@ -339,6 +367,7 @@ void voirReclamations(int userId) {
 
             strftime(dateStr, sizeof(dateStr), "%d/%m/%Y %H:%M:%S", localtime(&reclamations[i].dateSubmission));
             printf("\t> Date Submission: %s\n", dateStr);
+            printf("------------------------------------------\n");
             }
         }
     }
