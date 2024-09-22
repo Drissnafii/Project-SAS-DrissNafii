@@ -16,12 +16,12 @@ typedef struct {
 
 typedef struct {
     int id;
-    char motif[250];
+    char motif[100];
     char description[250];
     char categorie[50];
-    int statut; // En attente / En cours / Resolu
-    char clientUsername[50];    
-    int priority; // basse / moyenne / haute priority
+    int statut; // 0: en attente, 1: en cours, 2: resolu, 3: rejete
+    char clientUsername[50];
+    time_t dateSubmission; // Add Time >>> dada of Reclamation
 } Reclamation;
 
 // Function prototypes
@@ -32,7 +32,7 @@ void manageUsers();  //
 
 void entrerReclamation(int userId);                  //
 void voirReclamations(int userId);                  //
-void editReclamation(int userId);                  // >> Reclamations Management Functions
+void editReclamation(int userId) {};                  // >> Reclamations Management Functions
 void searchReclamation();                         //
 void afficherRecByPriority();                    //
 
@@ -208,7 +208,13 @@ void manageUsers() {        // ! Just for admins
 
     // [2] implement the claims management functions :
 
+        // ID generator
+int generateRandomId() {
+    return rand() % 10000 + 1000;
+}
         // >> Enter Reclamations 
+
+
 void entrerReclamation(int userId) {
     if (nbrReclamations >= MAX_RECLAMATIONS) {
         printf("Nombre maximum de reclamations atteint.\n");
@@ -216,29 +222,64 @@ void entrerReclamation(int userId) {
     }
 
     Reclamation newReclamation;
-    newReclamation.id = nbrReclamations + 1;
-    printf("Entrez la description de votre reclamation : ");
+    newReclamation.id = generateRandomId();
+
+    printf(">> Entrez le motif de la reclamation : ");
+    fgets(newReclamation.motif, sizeof(newReclamation.motif), stdin);
+    newReclamation.motif[strcspn(newReclamation.motif, "\n")] = 0;
+
+
+    printf(">> Entrez la description detaillee du probleme : ");
     fgets(newReclamation.description, sizeof(newReclamation.description), stdin);
-    newReclamation.description[strcspn(newReclamation.description, "\n")] = '\0';
-    
-    newReclamation.statut = 0;  
+    newReclamation.description[strcspn(newReclamation.description, "\n")] = 0;
+
+
+    printf(">> Entrez la categorie de la reclamation : ");
+    fgets(newReclamation.categorie, sizeof(newReclamation.categorie), stdin);
+    newReclamation.categorie[strcspn(newReclamation.categorie, "\n")] = 0;
+
+
+    newReclamation.statut = 0; // en attent
     strcpy(newReclamation.clientUsername, Users[userId].username);
 
-    reclamations[nbrReclamations++] = newReclamation;
-    printf("Reclamation soumise avec succes. ID de la reclamation : %d\n", newReclamation.id);
+    newReclamation.dateSubmission = time(NULL); 
+
+
+    reclamations[nbrReclamations] = newReclamation; // Edit the Nombre of Reclamations After that
+    nbrReclamations++;
+
+    printf("| Reclamation soumise avec succes. \n| ID de la reclamation : %d\n", newReclamation.id);
 }
 
-        // >> See Reclamations
+        // >> See Reclamation 
 void voirReclamations(int userId) {
-    printf("Affichage des reclamations pour l'utilisateur : %s\n", Users[userId].username);
-    for (int i = 0; i < nbrReclamations; i++) {
-        if (strcmp(reclamations[i].clientUsername, Users[userId].username) == 0) {
-            printf("Reclamation ID: %d, Description: %s, Statut: %d\n", 
-                   reclamations[i].id, reclamations[i].description, reclamations[i].statut);
+    if (userId == -1) { //
+
+        for (int i = 0; i < nbrReclamations; i++) {
+            printf("\t> Reclamation ID: %d\n", reclamations[i].id);
+            printf("\t> Motif: %s\n", reclamations[i].motif);
+            printf("\t> Description: %s\n", reclamations[i].description);
+            printf("\t> Categorie: %s\n", reclamations[i].categorie);
+            printf("\t> Statut: %d\n", reclamations[i].statut);
+            printf("\t> Client Username: %s\n", reclamations[i].clientUsername);
+            printf("\t>Date Submission: %ld\n", reclamations[i].dateSubmission);
+            printf("\n");
+        }
+    } else { // Display reclamations for the given user
+        for (int i = 0; i < nbrReclamations; i++) {
+            if (strcmp(reclamations[i].clientUsername, Users[userId].username) == 0) {
+                printf("Reclamation ID: %d\n", reclamations[i].id);
+                printf("Motif: %s\n", reclamations[i].motif);
+                printf("Description: %s\n", reclamations[i].description);
+                printf("Categorie: %s\n", reclamations[i].categorie);
+                printf("Statut: %d\n", reclamations[i].statut);
+                printf("Client Username: %s\n", reclamations[i].clientUsername);
+                printf("Date Submission: %ld\n", reclamations[i].dateSubmission);
+                printf("\n");
+            }
         }
     }
 }
-
 
         // >> Edit Reclamations
 void editReclamations() {
@@ -323,7 +364,6 @@ void afficherMenuPrincipal() {
     printf(" [1] S'inscrire\n");
     printf(" [2] Se connecter\n");
     printf(" [3] Quitter\n");
-    printf(" [4] Afficher les Reclamations (New !)\n");
     printf("\t[x] >>> ");
 }
 
@@ -380,12 +420,13 @@ void adminMenu(int userId) {
     int choice;
     do {
         printf("\n|------- Menu Administrateur -------|\n");
-        printf("[1]. Afficher toutes les reclamations\n");
-        printf("[2]. Modifier ou supprimer une reclamation\n");
-        printf("[3]. Rechercher une reclamation\n");
-        printf("[4]. Afficher les reclamations par priorite\n");
-        printf("[5]. Gerer les Users\n");
-        printf("[6]. Deconnexion\n");
+        printf("[1]. Voir toutes les reclamations\n");
+        printf("[2]. Ajouter une reclamation\n");
+        printf("[3]. Modifier une reclamation\n");
+        printf("[4]. Rechercher une reclamation\n");
+        printf("[5]. Voir reclamations par priorite\n");
+        printf("[6]. Gerer les utilisateurs\n");
+        printf("[7]. Deconnexion\n");
         printf("\t[x] >>> ");
 
         char Choice01[10];
@@ -394,27 +435,30 @@ void adminMenu(int userId) {
 
         switch(choice) {
             case 1:
-                voirReclamations(userId);
+                voirReclamations(-1);
                 break;
             case 2:
-                editReclamation(userId);
+                entrerReclamation(userId);
                 break;
             case 3:
-                searchReclamation();
+                editReclamation(userId);
                 break;
             case 4:
-                afficherRecByPriority();
+                searchReclamation();
                 break;
             case 5:
-                manageUsers();
+                afficherRecByPriority();
                 break;
             case 6:
+                manageUsers();
+                break;
+            case 7:
                 printf("Deconnexion...\n");
                 break;
             default:
-                printf("choice invalide.\n");
+                printf("Choix invalide.\n");
         }
-    } while (choice != 6);
+    } while (choice != 7);
 }
 
         // >> Agent Menu
@@ -460,6 +504,7 @@ void agentMenu(int userId) {
     // The Main Function To Combinate All Those Function at the Tooooop.
 
 int main() {
+    srand(time(NULL));
     int choice, annee;
     int UserConnecte = -1;
 
@@ -508,8 +553,12 @@ int main() {
                     break;
                 case 3:
 
-                    printf("Fermeture du programme. Au revoir !\n");
-                    exit(0);
+                    if (Users[UserConnecte].role == 1 || Users[UserConnecte].role == 2) { 
+                        editReclamations();
+                    }
+                    break;
+
+                    
                 case 4:
                     
                     printf("We are working on more options. Be patien...\n");
