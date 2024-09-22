@@ -279,7 +279,7 @@ void voirReclamations(int userId) {
 
                 switch (reclamations[i].statut)
                 {
-                    
+
                 case 0:
                     printf("\t> Statut: En Attente\n");
                     break;
@@ -411,6 +411,7 @@ void userMenu(int userId) {
         
         char Choice01[10];
         fgets(Choice01, sizeof(Choice01), stdin);
+        Choice01[strcspn(Choice01, "\n")] = '\0'; // Removing newLine
         choice = atoi(Choice01);
 
         switch(choice) {
@@ -457,6 +458,7 @@ void adminMenu(int userId) {
 
         char Choice01[10];
         fgets(Choice01, sizeof(Choice01), stdin);
+        Choice01[strcspn(Choice01, "\n")] = '\0'; // Removing newLine
         choice = atoi(Choice01);
 
         switch(choice) {
@@ -500,6 +502,7 @@ void agentMenu(int userId) {
 
         char Choice01[10];
         fgets(Choice01, sizeof(Choice01), stdin);
+        Choice01[strcspn(Choice01, "\n")] = '\0'; // Removing newLine
         choice = atoi(Choice01);
 
         switch(choice) {
