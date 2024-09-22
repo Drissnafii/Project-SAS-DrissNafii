@@ -253,36 +253,8 @@ void entrerReclamation(int userId) {
 
         // >> See Reclamation 
 void voirReclamations(int userId) {
-    char dateStr[20];
-    if (userId == -1) { //
-
-        for (int i = 0; i < nbrReclamations; i++) {
-            printf("\t> Reclamation ID: %d\n\n", reclamations[i].id);
-            printf("\t> Motif: %s\n\n", reclamations[i].motif);
-            printf("\t> Description: %s\n", reclamations[i].description);
-            printf("\t> Categorie: %s\n", reclamations[i].categorie);
-            printf("\t> Statut: %d\n", reclamations[i].statut);
-
-            printf("\t> Client Username: %s\n", reclamations[i].clientUsername);
-
-            strftime(dateStr, sizeof(dateStr), "%d/%m/%Y %H:%M:%S", localtime(&reclamations[i].dateSubmission));
-            printf("\t> Date Submission: %s\n", dateStr);
-        }
-    } else { // Display reclamations for the given user
-        for (int i = 0; i < nbrReclamations; i++) {
-            if (strcmp(reclamations[i].clientUsername, Users[userId].username) == 0) {
-            printf("\t> Reclamation ID: %d\n", reclamations[i].id);
-            printf("\t> Motif: %s\n", reclamations[i].motif);
-            printf("\t> Description: %s\n", reclamations[i].description);
-            printf("\t> Categorie: %s\n", reclamations[i].categorie);
-            printf("\t> Statut: %d\n", reclamations[i].statut);
-            printf("\t> Client Username: %s\n", reclamations[i].clientUsername);
-
-            strftime(dateStr, sizeof(dateStr), "%d/%m/%Y %H:%M:%S", localtime(&reclamations[i].dateSubmission));
-            printf("\t> Date Submission: %s\n", dateStr);
-            }
-        }
-    }
+    printf("Affichage des reclamations pour l'utilisateur %d\n", userId);
+    // Implement the logic to display reclamations here
 }
 
         // >> Edit Reclamations
