@@ -24,15 +24,35 @@ typedef struct {
     time_t dateSubmission; // Add Time >>> dada of Reclamation
 } Reclamation;
 
+// Function to count words
+int countWords(char str[]) {
+    int count = 0;
+    int inWord = 0;
+    int i = 0;
+
+    while (str[i] != '\0') {
+        if (str[i] == ' ' || str[i] == '\n' || str[i] == '\t') {
+            inWord = 0; // We are not in a word
+        } else {
+            if (inWord == 0) {
+                count++; // Found a new word
+            }
+            inWord = 1; // We are in a word
+        }
+        i++;
+    }
+    return count;
+}
+
 // Function prototypes
 
 void inscrire();       //
 int seConnecter();    // >> User Management Functions
 void manageUsers();  //
 
-void entrerReclamation(int userId);                  //
+void soumettreReclamation(int userId);               //
 void voirReclamations(int userId);                  //
-void editReclamation(int userId) {};                  // >> Reclamations Management Functions
+void editReclamation(int userId) {};               // >> Reclamations Management Functions
 void searchReclamation();                         //
 void afficherRecByPriority();                    //
 
@@ -215,7 +235,7 @@ int generateRandomId() {
         // >> Enter Reclamations 
 
 
-void entrerReclamation(int userId) {
+void soumettreReclamation(int userId) {
     if (nbrReclamations >= MAX_RECLAMATIONS) {
         printf("Nombre maximum de reclamations atteint.\n");
         return;
@@ -224,9 +244,26 @@ void entrerReclamation(int userId) {
     Reclamation newReclamation;
     newReclamation.id = generateRandomId();
 
+    while (1) {
+
     printf(">> Entrez le motif de la reclamation : ");
     fgets(newReclamation.motif, sizeof(newReclamation.motif), stdin);
     newReclamation.motif[strcspn(newReclamation.motif, "\n")] = 0;
+
+         // >> count the number of words in the motif 
+         int wordCount = countWords(newReclamation.motif);
+
+         if (wordCount >= 3 && wordCount <= 8)
+         {
+           break;
+         } else if (wordCount < 3)
+         {
+            printf("Le motif est trop court. Il doit contenir au moins 3 mots. \n\tVeuillez reessayer...\n");
+         } else {
+            printf("Le motif est trop long. Il doit contenir un maximum de 8 mots. \n\tVeuillez reessayer...\n");
+         }
+         
+    }
 
 
     printf(">> Entrez la description detaillee du probleme : ");
@@ -416,7 +453,7 @@ void userMenu(int userId) {
 
         switch(choice) {
             case 1:
-                entrerReclamation(userId);
+                soumettreReclamation(userId);
                 break;
             case 2:
                 voirReclamations(userId);
@@ -466,7 +503,7 @@ void adminMenu(int userId) {
                 voirReclamations(-1);
                 break;
             case 2:
-                entrerReclamation(userId);
+                soumettreReclamation(userId);
                 break;
             case 3:
                 editReclamation(userId);
