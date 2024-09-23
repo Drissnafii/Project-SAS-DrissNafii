@@ -512,7 +512,161 @@ void editReclamation(int userId) {
 }
 
         // >> Search for Reclamations
-void searchReclamation() {}
+void searchReclamation() {
+
+    int choice;
+    int reclamationId;
+    char clientName[MAX_LENGTH];
+    time_t startDate, endDate;
+    struct tm startTm, endTm;
+    char dateStr;
+
+    printf("\n|------- Menu de Recherche de Reclamation -------|\n");
+    printf("1. Rechercher par ID de reclamation\n");
+    printf("2. Rechercher par nom de client\n");
+    printf("3. Rechercher par date de soumission\n");
+    printf("\t[x] >>> ");
+    char Choice01[10];
+    fgets(Choice01, sizeof(Choice01), stdin);
+    Choice01[strcspn(Choice01, "\n")] = '\0';
+    choice = atoi(Choice01);
+
+    // Add search Options
+    switch (choice)
+    {
+        case 1:
+            // Search by Reclamation ID
+            printf("Entrez l'ID de la reclamation : ");
+            scanf("%d", &reclamationId);
+            getchar(); // Clear the newline character
+
+            for (int i = 0; i < nbrReclamations; i++) {
+                if (reclamations[i].id == reclamationId) {
+                    printf(" _______________________________________\n");
+                    printf("|\tTous Les Infos de votre Reclamation:\n");
+                    printf(" ->>\n");
+                    printf("\t> Reclamation ID: %d\n", reclamations[i].id);
+                    printf("\t> Motif: %s\n", reclamations[i].motif);
+                    printf("\t> Description: %s\n", reclamations[i].description);
+                    printf("\t> Categorie: %s\n", reclamations[i].categorie);
+                    switch (reclamations[i].statut) {
+                        case 0:
+                            printf("\t> Statut: En Attente\n");
+                            break;
+                        case 1:
+                            printf("\t> Statut: En Cours\n");
+                            break;
+                        case 2:
+                            printf("\t> Statut: Resolu\n");
+                            break;
+                        case 3:
+                            printf("\t> Statut: Rejete\n");
+                            break;
+                        default:
+                            printf("\t> Statut: Inconnu\n");
+                            break;
+                    }
+                    printf("\t> Client Username: %s\n", reclamations[i].clientUsername);
+                    strftime(dateStr, sizeof(dateStr), "%d/%m/%Y %H:%M:%S", localtime(&reclamations[i].dateSubmission));
+                    printf("\t> Date Submission: %s\n", dateStr);
+                    return;
+                }
+            }
+            printf("Aucune reclamation trouvee avec l'ID %d.\n", reclamationId);
+            break;
+
+
+        case 2:
+            // Search by Client Name
+            printf("Entrez le nom du client : ");
+            fgets(clientName, sizeof(clientName), stdin);
+            clientName[strcspn(clientName, "\n")] = '\0'; // Removing newLine
+
+            for (int i = 0; i < nbrReclamations; i++) {
+                if (strcmp(reclamations[i].clientUsername, clientName) == 0) {
+                    printf(" _______________________________________\n");
+                    printf("|\tTous Les Infos de votre Reclamation:\n");
+                    printf(" ->>\n");
+                    printf("\t> Reclamation ID: %d\n", reclamations[i].id);
+                    printf("\t> Motif: %s\n", reclamations[i].motif);
+                    printf("\t> Description: %s\n", reclamations[i].description);
+                    printf("\t> Categorie: %s\n", reclamations[i].categorie);
+                    switch (reclamations[i].statut) {
+                        case 0:
+                            printf("\t> Statut: En Attente\n");
+                            break;
+                        case 1:
+                            printf("\t> Statut: En Cours\n");
+                            break;
+                        case 2:
+                            printf("\t> Statut: Resolu\n");
+                            break;
+                        case 3:
+                            printf("\t> Statut: Rejete\n");
+                            break;
+                        default:
+                            printf("\t> Statut: Inconnu\n");
+                            break;
+                    }
+                    printf("\t> Client Username: %s\n", reclamations[i].clientUsername);
+                    strftime(dateStr, sizeof(dateStr), "%d/%m/%Y %H:%M:%S", localtime(&reclamations[i].dateSubmission));
+                    printf("\t> Date Submission: %s\n", dateStr);
+                }
+            }
+            printf("Aucune reclamation trouvee pour le client %s.\n", clientName);
+            break;
+        case 3:
+            // Search by Submission Date
+            printf("Entrez la date de debut (JJ/MM/AAAA) : ");
+            scanf("%d/%d/%d", &startTm.tm_mday, &startTm.tm_mon, &startTm.tm_year);
+            startTm.tm_mon -= 1;
+            startTm.tm_year -= 1900;
+            startDate = mktime(&startTm);
+
+            printf("Entrez la date de fin (JJ/MM/AAAA) : ");
+            scanf("%d/%d/%d", &endTm.tm_mday, &endTm.tm_mon, &endTm.tm_year);
+            endTm.tm_mon -= 1; // Adjust month (0-11)
+            endTm.tm_year -= 1900; // Adjust year
+            endDate = mktime(&endTm);
+
+            for (int i = 0; i < nbrReclamations; i++) {
+                if (reclamations[i].dateSubmission >= startDate && reclamations[i].dateSubmission <= endDate) {
+                    printf(" _______________________________________\n");
+                    printf("|\tTous Les Infos de votre Reclamation:\n");
+                    printf(" ->>\n");
+                    printf("\t> Reclamation ID: %d\n", reclamations[i].id);
+                    printf("\t> Motif: %s\n", reclamations[i].motif);
+                    printf("\t> Description: %s\n", reclamations[i].description);
+                    printf("\t> Categorie: %s\n", reclamations[i].categorie);
+                    switch (reclamations[i].statut) {
+                        case 0:
+                            printf("\t> Statut: En Attente\n");
+                            break;
+                        case 1:
+                            printf("\t> Statut: En Cours\n");
+                            break;
+                        case 2:
+                            printf("\t> Statut: Resolu\n");
+                            break;
+                        case 3:
+                            printf("\t> Statut: Rejete\n");
+                            break;
+                        default:
+                            printf("\t> Statut: Inconnu\n");
+                            break;
+                    }
+                    printf("\t> Client Username: %s\n", reclamations[i].clientUsername);
+                    strftime(dateStr, sizeof(dateStr), "%d/%m/%Y %H:%M:%S", localtime(&reclamations[i].dateSubmission));
+                    printf("\t> Date Submission: %s\n", dateStr);
+                }
+            }
+            printf("Aucune reclamation trouvee dans la periode selectionnee.\n");
+            break;
+    
+        default:
+            printf("Choix invalide.\n");
+    }
+}
 
         // >> See Reclamations by priority
 void afficherRecByPriority() {}
@@ -593,7 +747,7 @@ void userMenu(int userId) {
         
         char Choice01[10];
         fgets(Choice01, sizeof(Choice01), stdin);
-        Choice01[strcspn(Choice01, "\n")] = '\0'; // Removing newLine
+        Choice01[strcspn(Choice01, "\n")] = '\0';
         choice = atoi(Choice01);
 
         switch(choice) {
