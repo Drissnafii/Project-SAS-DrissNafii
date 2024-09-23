@@ -62,7 +62,7 @@ void manageUsers();  //
 
 void soumettreReclamation(int userId);               //
 void voirReclamations(int userId);                  //
-void editReclamation(int userId) {};               // >> Reclamations Management Functions
+void editReclamation(int userId);                  // >> Reclamations Management Functions
 void searchReclamation();                         //
 void afficherRecByPriority();                    //
 
@@ -397,25 +397,118 @@ void voirReclamations(int userId) {
 }
 
         // >> Edit Reclamations
-void editReclamations() {
-    int ReclamationID, newStatue;
-    printf("Entrez l'ID de la reclamation a mettre a jour : ");
-    scanf("%d", &ReclamationID);
+void editReclamation(int userId) {
+    int reclamationId, choice, newStatut, categoryChoice;
+    char newMotif[100], newDescription[250];
+
+    printf("Entrez l'ID de la reclamation a modifier : ");
+    scanf("%d", &reclamationId);
     getchar();
-    
-    printf("Entrez le nouveau statut \n[0]: En attente \n[1]: En cours  \n[2]: Resolu \n");
-    printf("\t[x] >>> ");
-    scanf("%d", &newStatue);
-    getchar();
-    
+
+    // Find the reclamation
+    int found = 0;
     for (int i = 0; i < nbrReclamations; i++) {
-        if (reclamations[i].id == ReclamationID) {
-            reclamations[i].statut = newStatue;
-            printf("Statut de la reclamation mis a jour avec succes.\n");
+        if (reclamations[i].id == reclamationId) {
+            found = 1;
+            
+            if (Users[userId].role == ROLE_CLIENT && 
+                strcmp(reclamations[i].clientUsername, Users[userId].username) != 0) {
+                printf("Vous n'etes pas autorise a modifier cette reclamation.\n");
+                return; 
+            }
+
+            // Display current details
+            printf(">> Details actuels de la reclamation : \n");
+            printf(">> ID: %d\n", reclamations[i].id);
+            printf(">> Motif: %s\n", reclamations[i].motif);
+            printf(">> Description: %s\n", reclamations[i].description);
+            printf(">> Categorie: %s\n", reclamations[i].categorie);
+            printf(">> Statut: %d\n", reclamations[i].statut);
+
+            // Ask what the user wants to edit
+            printf("=======================================\n");
+            printf("  MODIFICATION MENU\n");
+            printf("=======================================\n\n");
+
+            printf("Que souhaitez-vous modifier ?\n");
+            printf("[1] > Motif\n");
+            printf("[2] > Description\n");
+            printf("[3] > Categorie\n");
+            printf("[4] > Statut (Agents & Admin only)\n");
+            printf("[5] > Annuler\n");
+            printf("\t[x] >> ");
+            scanf("%d", &choice);
+            getchar();
+
+            switch (choice) {
+                case 1:
+                    printf("Entrez le nouveau motif : ");
+                    fgets(newMotif, sizeof(newMotif), stdin);
+                    newMotif[strcspn(newMotif, "\n")] = '\0';
+                    strcpy(reclamations[i].motif, newMotif);
+                    break;
+
+                case 2:
+                    printf("Entrez la nouvelle description : ");
+                    fgets(newDescription, sizeof(newDescription), stdin);
+                    newDescription[strcspn(newDescription, "\n")] = '\0';
+                    strcpy(reclamations[i].description, newDescription);
+                    break;
+
+                case 3:
+                    printf("Entrez la nouvelle categorie (choisir un nombre):\n");
+                    for (int j = 0; j < numCategories; j++) {
+                        printf("%d. %s\n", j + 1, categories[j]);
+                    }
+                    scanf("%d", &categoryChoice);
+                    getchar();
+
+                    if (categoryChoice >= 1 && categoryChoice <= numCategories) {
+                        strcpy(reclamations[i].categorie, categories[categoryChoice - 1]);
+                    } else {
+                        printf("Choix de categorie invalide.\n");
+                    }
+                    break;
+
+                case 4:
+                    if (Users[userId].role == ROLE_AGENT || Users[userId].role == ROLE_ADMIN) {
+                        printf("Entrez le nouveau statut :\n");
+                        printf("[0]> En attente.\n");
+                        printf("[1]> En cours.\n");
+                        printf("[2]> Resolu\n");
+                        printf("[3]> Rejete\n");
+                        printf("\t[x] >> ");
+                        scanf("%d", &newStatut);
+                        getchar();
+
+                        if (newStatut >= 0 && newStatut <= 3) {
+                            reclamations[i].statut = newStatut;
+                        } else {
+                            printf("Statut invalide.\n");
+                        }
+                    } else {
+                        printf("Vous n'etes pas autorise a modifier le statut de la reclamation.\n");
+                    }
+                    break;
+
+                case 5:
+                    printf("Modification annulee.\n");
+                    break;
+
+                default:
+                    printf("Choix invalide.\n");
+            }
+
+            if (choice >= 1 && choice <= 4) {
+                printf("Reclamation modifiee avec succes !\n");
+            }
             return;
         }
     }
-    printf("Reclamation non trouvee.\n");
+
+    if (!found) {
+        printf("Aucune reclamation trouvee avec l'ID %d.\n", reclamationId);
+    }
 }
 
         // >> Search for Reclamations
@@ -511,9 +604,10 @@ void userMenu(int userId) {
                 voirReclamations(userId);
                 break;
             case 3:
-                if (Users[userId].role == 1 || Users[userId].role == 2) {
-
+                if (Users[userId].role == ROLE_AGENT || Users[userId].role == ROLE_ADMIN) {
                     editReclamation(userId);
+                } else {
+                    printf("Action réservée aux agents et administrateurs.\n"); 
                 }
                 break;
             case 4:
@@ -666,9 +760,9 @@ int main() {
                     }
                     break;
                 case 3:
-
-                    if (Users[UserConnecte].role == 1 || Users[UserConnecte].role == 2) { 
-                        editReclamations();
+                
+                    if (Users[UserConnecte].role == ROLE_AGENT || Users[UserConnecte].role == ROLE_ADMIN) {
+                        editReclamation(UserConnecte);
                     }
                     break;
 
