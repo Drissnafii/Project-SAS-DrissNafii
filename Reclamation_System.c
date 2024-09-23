@@ -736,15 +736,11 @@ void userMenu(int userId) {
         printf("\n|------- Menu User -------|\n");
         printf("[1]. Soumettre une reclamation\n");
         printf("[2]. Voir mes reclamations\n");
-        if (Users[userId].role == 1 || Users[userId].role == 2) {
-            printf("[3]. Gerer les reclamations\n");
-        }
-        if (Users[userId].role == 2) {
-            printf("[4]. Gerer les Users\n");
-        }
+        printf("[3]. Rechercher une reclamation\n"); // New search option
+        printf("[4]. Gerer les reclamations\n");
         printf("[5]. Deconnexion\n");
         printf("\t[x] >>> ");
-        
+
         char Choice01[10];
         fgets(Choice01, sizeof(Choice01), stdin);
         Choice01[strcspn(Choice01, "\n")] = '\0';
@@ -758,16 +754,13 @@ void userMenu(int userId) {
                 voirReclamations(userId);
                 break;
             case 3:
+                searchReclamation();
+                break;
+            case 4:
                 if (Users[userId].role == ROLE_AGENT || Users[userId].role == ROLE_ADMIN) {
                     editReclamation(userId);
                 } else {
-                    printf("Action réservée aux agents et administrateurs.\n"); 
-                }
-                break;
-            case 4:
-                if (Users[userId].role == 2) {
-
-                    manageUsers();
+                    printf("Action reservee aux agents et administrateurs.\n");
                 }
                 break;
             case 5:
