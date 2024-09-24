@@ -21,8 +21,12 @@ typedef struct {
     char categorie[50];
     int statut; // 0: en attente, 1: en cours, 2: resolu, 3: rejete
     char clientUsername[50];
+<<<<<<< HEAD
     time_t dateSubmission;
     int priority; // New field: 1 (low), 2 (medium), 3 (high)
+=======
+    time_t dateSubmission; // Add Time >>> dada of Reclamation
+>>>>>>> 5137d623f23b38230b2bd989a473b05bec6a9dcd
 } Reclamation;
 
 // categories of Reclamations
@@ -301,10 +305,13 @@ void soumettreReclamation(int userId) {
     } while (categoryChoice < 1 || categoryChoice > numCategories);
 
     strcpy(newReclamation.categorie, categories[categoryChoice - 1]);
+<<<<<<< HEAD
 
     printf("Entrez la priorite de la reclamation (1: Basse, 2: Moyenne, 3: Haute): ");
     scanf("%d", &newReclamation.priority);
     getchar();
+=======
+>>>>>>> 5137d623f23b38230b2bd989a473b05bec6a9dcd
     
     // Update Status and date of submission
     newReclamation.statut = 0; // en attent
@@ -353,7 +360,10 @@ void voirReclamations(int userId) {
                     break;
         }
 
+<<<<<<< HEAD
             printf(" \t> Priorite: %d\n", reclamations[i].priority);
+=======
+>>>>>>> 5137d623f23b38230b2bd989a473b05bec6a9dcd
             printf(" \t> Client Username: %s\n", reclamations[i].clientUsername);
 
             strftime(dateStr, sizeof(dateStr), "%d/%m/%Y %H:%M:%S", localtime(&reclamations[i].dateSubmission));
@@ -498,6 +508,7 @@ void editReclamation(int userId) {
                     break;
 
                 case 5:
+<<<<<<< HEAD
 
                     if (Users[userId].role == ROLE_AGENT || Users[userId].role == ROLE_ADMIN) {
                         printf("Entrez la nouvelle priorite (1: Basse, 2: Moyenne, 3: Haute): ");
@@ -509,6 +520,11 @@ void editReclamation(int userId) {
                     break;
 
 
+=======
+                    printf("Modification annulee.\n");
+                    break;
+
+>>>>>>> 5137d623f23b38230b2bd989a473b05bec6a9dcd
                 default:
                     printf("Choix invalide.\n");
             }
@@ -527,12 +543,20 @@ void editReclamation(int userId) {
 
         // >> Search for Reclamations
 void searchReclamation() {
+<<<<<<< HEAD
+=======
+
+>>>>>>> 5137d623f23b38230b2bd989a473b05bec6a9dcd
     int choice;
     int reclamationId;
     char clientName[MAX_LENGTH];
     time_t startDate, endDate;
     struct tm startTm, endTm;
+<<<<<<< HEAD
     char dateStr[20];
+=======
+    char dateStr;
+>>>>>>> 5137d623f23b38230b2bd989a473b05bec6a9dcd
 
     printf("\n|------- Menu de Recherche de Reclamation -------|\n");
     printf("1. Rechercher par ID de reclamation\n");
@@ -682,6 +706,7 @@ void searchReclamation() {
 }
 
         // >> See Reclamations by priority
+<<<<<<< HEAD
 void afficherRecByPriority() {
     int i, j;
     Reclamation temp;
@@ -714,6 +739,9 @@ void afficherRecByPriority() {
         printf("Client: %s\n", sortedReclamations[i].clientUsername);
     }
 }
+=======
+void afficherRecByPriority() {}
+>>>>>>> 5137d623f23b38230b2bd989a473b05bec6a9dcd
 
 
 
