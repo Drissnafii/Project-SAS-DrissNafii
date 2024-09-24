@@ -19,14 +19,10 @@ typedef struct {
     char motif[100];
     char description[250];
     char categorie[50];
-    int statut; // 0: en attente, 1: en cours, 2: resolu, 3: rejete
+    int statut; 
     char clientUsername[50];
-<<<<<<< HEAD
     time_t dateSubmission;
-    int priority; // New field: 1 (low), 2 (medium), 3 (high)
-=======
-    time_t dateSubmission; // Add Time >>> dada of Reclamation
->>>>>>> 5137d623f23b38230b2bd989a473b05bec6a9dcd
+    int priority; // Add this line right here
 } Reclamation;
 
 // categories of Reclamations
@@ -260,36 +256,31 @@ void soumettreReclamation(int userId) {
     newReclamation.id = generateRandomId();
 
     while (1) {
+        printf("Pour que nous acceptions votre Reclamation, \nvous devez suivre les etapes suivantes pour avoir\nune vue d'ensemble de votre Reclamation.\n");
+        printf("\t[x] Le motif (de 3 a 8 mots) >> ");
+        fgets(newReclamation.motif, sizeof(newReclamation.motif), stdin);
+        newReclamation.motif[strcspn(newReclamation.motif, "\n")] = 0;
 
-    printf("Pour Que nous acceptions votre Reclamation, \nvous devez suivre les etapes suivants pour avoir\nune vue d'ensemble de votre Reclamation.\n");
-    printf("\t[x] Le motif (de 3 a 8 mots) >> ");
-    fgets(newReclamation.motif, sizeof(newReclamation.motif), stdin);
-    newReclamation.motif[strcspn(newReclamation.motif, "\n")] = 0;
+        // Count the number of words in the motif 
+        int wordCount = countWords(newReclamation.motif);
 
-         // >> count the number of words in the motif 
-         int wordCount = countWords(newReclamation.motif);
-
-         if (wordCount >= 3 && wordCount <= 8)
-         {
-           break;
-         } else if (wordCount < 3)
-         {
+        if (wordCount >= 3 && wordCount <= 8) {
+            break;
+        } else if (wordCount < 3) {
             printf("Le motif est trop court. Il doit contenir au moins 3 mots. \n\tVeuillez reessayer...\n");
-         } else {
+        } else {
             printf("Le motif est trop long. Il doit contenir un maximum de 8 mots. \n\tVeuillez reessayer...\n");
-         }
-         
+        }
     }
 
-        // Description of reclamation
+    // Description of reclamation
     printf(">> Entrez la description detaillee du probleme : ");
     fgets(newReclamation.description, sizeof(newReclamation.description), stdin);
     newReclamation.description[strcspn(newReclamation.description, "\n")] = 0;
 
-        // Categoriy of reclamation (As a choice)
+    // Category of reclamation (As a choice)
     printf(">> Entrez la categorie de la reclamation : \n");
-    for (int i = 0; i < numCategories; i++)
-    {
+    for (int i = 0; i < numCategories; i++) {
         printf("%d. %s\n", i + 1, categories[i]);
     }
 
@@ -305,21 +296,25 @@ void soumettreReclamation(int userId) {
     } while (categoryChoice < 1 || categoryChoice > numCategories);
 
     strcpy(newReclamation.categorie, categories[categoryChoice - 1]);
-<<<<<<< HEAD
-
-    printf("Entrez la priorite de la reclamation (1: Basse, 2: Moyenne, 3: Haute): ");
-    scanf("%d", &newReclamation.priority);
-    getchar();
-=======
->>>>>>> 5137d623f23b38230b2bd989a473b05bec6a9dcd
     
     // Update Status and date of submission
-    newReclamation.statut = 0; // en attent
+    newReclamation.statut = 0; // en attente
     strcpy(newReclamation.clientUsername, Users[userId].username);
     newReclamation.dateSubmission = time(NULL); 
 
+    // Get priority
+    do {
+        printf("Entrez la priorite de la reclamation (1: Basse, 2: Moyenne, 3: Haute): ");
+        scanf("%d", &newReclamation.priority);
+        getchar();
 
-    reclamations[nbrReclamations] = newReclamation; // Edit the Nombre of Reclamations After that
+        if (newReclamation.priority < 1 || newReclamation.priority > 3) {
+            printf("Priorite invalide. Veuillez entrer 1, 2 ou 3.\n");
+        }
+    } while (newReclamation.priority < 1 || newReclamation.priority > 3);
+
+    
+    reclamations[nbrReclamations] = newReclamation;
     nbrReclamations++;
 
     printf("| Reclamation soumise avec succes. \n| ID de la reclamation : %d\n", newReclamation.id);
@@ -360,10 +355,6 @@ void voirReclamations(int userId) {
                     break;
         }
 
-<<<<<<< HEAD
-            printf(" \t> Priorite: %d\n", reclamations[i].priority);
-=======
->>>>>>> 5137d623f23b38230b2bd989a473b05bec6a9dcd
             printf(" \t> Client Username: %s\n", reclamations[i].clientUsername);
 
             strftime(dateStr, sizeof(dateStr), "%d/%m/%Y %H:%M:%S", localtime(&reclamations[i].dateSubmission));
@@ -440,6 +431,7 @@ void editReclamation(int userId) {
             printf(">> Description: %s\n", reclamations[i].description);
             printf(">> Categorie: %s\n", reclamations[i].categorie);
             printf(">> Statut: %d\n", reclamations[i].statut);
+            printf(">> Priorite: %d\n", reclamations[i].priority); // Add this line to display current priority
 
             // Ask what the user wants to edit
             printf("=======================================\n");
@@ -451,7 +443,8 @@ void editReclamation(int userId) {
             printf("[2] > Description\n");
             printf("[3] > Categorie\n");
             printf("[4] > Statut (Agents & Admin only)\n");
-            printf("[5] > Annuler\n");
+            printf("[5] > Priorite\n"); // Add this line
+            printf("[6] > Annuler\n"); // Adjust the line number for "Cancel" 
             printf("\t[x] >> ");
             scanf("%d", &choice);
             getchar();
@@ -507,29 +500,21 @@ void editReclamation(int userId) {
                     }
                     break;
 
-                case 5:
-<<<<<<< HEAD
-
-                    if (Users[userId].role == ROLE_AGENT || Users[userId].role == ROLE_ADMIN) {
-                        printf("Entrez la nouvelle priorite (1: Basse, 2: Moyenne, 3: Haute): ");
-                        scanf("%d", &reclamations[i].priority);
-                        getchar();
-                    } else {
-                        printf("Vous n'etes pas autorise a modifier la priorite de la reclamation.\n");
-                    }
+                case 5: // Here's where you add the code for priority
+                    printf("Entrez la nouvelle priorite (1: Basse, 2: Moyenne, 3: Haute): ");
+                    scanf("%d", &reclamations[i].priority);
+                    getchar();
                     break;
 
-
-=======
+                case 6:
                     printf("Modification annulee.\n");
                     break;
 
->>>>>>> 5137d623f23b38230b2bd989a473b05bec6a9dcd
                 default:
                     printf("Choix invalide.\n");
             }
 
-            if (choice >= 1 && choice <= 4) {
+            if (choice >= 1 && choice <= 5) { // Adjust the condition to include case 5
                 printf("Reclamation modifiee avec succes !\n");
             }
             return;
@@ -543,20 +528,12 @@ void editReclamation(int userId) {
 
         // >> Search for Reclamations
 void searchReclamation() {
-<<<<<<< HEAD
-=======
-
->>>>>>> 5137d623f23b38230b2bd989a473b05bec6a9dcd
     int choice;
     int reclamationId;
     char clientName[MAX_LENGTH];
     time_t startDate, endDate;
     struct tm startTm, endTm;
-<<<<<<< HEAD
     char dateStr[20];
-=======
-    char dateStr;
->>>>>>> 5137d623f23b38230b2bd989a473b05bec6a9dcd
 
     printf("\n|------- Menu de Recherche de Reclamation -------|\n");
     printf("1. Rechercher par ID de reclamation\n");
@@ -706,31 +683,30 @@ void searchReclamation() {
 }
 
         // >> See Reclamations by priority
-<<<<<<< HEAD
 void afficherRecByPriority() {
-    int i, j;
-    Reclamation temp;
+    // Step 1: Create a temporary array of reclamations
     Reclamation sortedReclamations[MAX_RECLAMATIONS];
     
-    // Copy reclamations to a temporary array
-    for (i = 0; i < nbrReclamations; i++) {
+    // Step 2: Copy all reclamations to the temporary array
+    for (int i = 0; i < nbrReclamations; i++) {
         sortedReclamations[i] = reclamations[i];
     }
     
-    // Sort the reclamations by priority (descending order)
-    for (i = 0; i < nbrReclamations - 1; i++) {
-        for (j = 0; j < nbrReclamations - i - 1; j++) {
+    // Step 3: Sort the temporary array by priority (descending order)
+    for (int i = 0; i < nbrReclamations - 1; i++) {
+        for (int j = 0; j < nbrReclamations - i - 1; j++) {
             if (sortedReclamations[j].priority < sortedReclamations[j + 1].priority) {
-                temp = sortedReclamations[j];
+                // Swap the elements
+                Reclamation temp = sortedReclamations[j];
                 sortedReclamations[j] = sortedReclamations[j + 1];
                 sortedReclamations[j + 1] = temp;
             }
         }
     }
     
-    // Display sorted reclamations
+    // Step 4: Display the sorted reclamations
     printf("\nReclamations triees par priorite (de la plus haute a la plus basse):\n");
-    for (i = 0; i < nbrReclamations; i++) {
+    for (int i = 0; i < nbrReclamations; i++) {
         printf("\n--- Reclamation %d ---\n", i + 1);
         printf("ID: %d\n", sortedReclamations[i].id);
         printf("Motif: %s\n", sortedReclamations[i].motif);
@@ -739,9 +715,6 @@ void afficherRecByPriority() {
         printf("Client: %s\n", sortedReclamations[i].clientUsername);
     }
 }
-=======
-void afficherRecByPriority() {}
->>>>>>> 5137d623f23b38230b2bd989a473b05bec6a9dcd
 
 
 
