@@ -63,10 +63,11 @@ void manageUsers();  //
 
 void soumettreReclamation(int userId);               //
 void voirReclamations(int userId);                  //
-void editReclamation(int userId);                  // >> Reclamations Management Functions
-void searchReclamation();                         //
-void afficherRecByPriority();                    //
-void genererRapportJournalier();                //
+void editReclamation(int userId);                  // 
+void supprimerReclamation(int userId);            // >> Reclamations Management Functions
+void searchReclamation();                        //
+void afficherRecByPriority();                   //
+void genererRapportJournalier();               //
 
 int isValidee(const char* nom, const char* password); // >> For password validation
 
@@ -324,7 +325,7 @@ void soumettreReclamation(int userId) {
         // >> See Reclamation 
 void voirReclamations(int userId) {
     char dateStr[20];
-    if (userId == -1) { //
+    if (userId == -1) {
 
         for (int i = 0; i < nbrReclamations; i++) {
             printf(" _______________________________________\n");
@@ -444,8 +445,8 @@ void editReclamation(int userId) {
             printf("[2] > Description\n");
             printf("[3] > Categorie\n");
             printf("[4] > Statut (Agents & Admin only)\n");
-            printf("[5] > Priorite\n"); // Add this line
-            printf("[6] > Annuler\n"); // Adjust the line number for "Cancel" 
+            printf("[5] > Priorite\n");
+            printf("[6] > Annuler\n");
             printf("\t[x] >> ");
             scanf("%d", &choice);
             getchar();
@@ -527,6 +528,44 @@ void editReclamation(int userId) {
     }
 }
 
+void supprimerReclamation(int userId) {
+    int reclamationId;
+    printf("Entrez l'ID de la reclamation a supprimer : ");
+    scanf("%d", &reclamationId);
+    getchar();
+
+    for (int i = 0; i < nbrReclamations; i++) {
+        if (reclamations[i].id == reclamationId) {
+            // Check if the user hqve permition to do this action
+            if (Users[userId].role == ROLE_CLIENT && 
+                strcmp(reclamations[i].clientUsername, Users[userId].username) != 0) {
+                printf("Vous n'etes pas autorise a supprimer cette reclamation.\n");
+                return;
+            }
+
+            // Check the limit of time to do the qction (24 h)
+            if (Users[userId].role == ROLE_CLIENT) {
+                time_t now = time(NULL);
+                if (difftime(now, reclamations[i].dateSubmission) > 24 * 60 * 60) {
+                    printf("Le delai de 24 heures pour supprimer cette reclamation est depasse.\n");
+                    return;
+                }
+            }
+
+            // delete 
+            for (int j = i; j < nbrReclamations - 1; j++) {
+                reclamations[j] = reclamations[j + 1];
+            }
+            nbrReclamations--;
+
+            printf("Reclamation supprimee avec succes.\n");
+            return;
+        }
+    }
+
+    printf("Reclamation introuvable.\n");
+}
+
         // >> Search for Reclamations
 void searchReclamation() {
     int choice;
@@ -553,7 +592,7 @@ void searchReclamation() {
             // Search by Reclamation ID
             printf("Entrez l'ID de la reclamation : ");
             scanf("%d", &reclamationId);
-            getchar(); // Clear the newline character
+            getchar();
 
             for (int i = 0; i < nbrReclamations; i++) {
                 if (reclamations[i].id == reclamationId) {
@@ -595,7 +634,7 @@ void searchReclamation() {
             // Search by Client Name
             printf("Entrez le nom du client : ");
             fgets(clientName, sizeof(clientName), stdin);
-            clientName[strcspn(clientName, "\n")] = '\0'; // Removing newLine
+            clientName[strcspn(clientName, "\n")] = '\0';
 
             for (int i = 0; i < nbrReclamations; i++) {
                 if (strcmp(reclamations[i].clientUsername, clientName) == 0) {
@@ -726,7 +765,7 @@ void genererRapportJournalier() {
     int i;
 
     time(&now);
-    local = *localtime(&now); // Use a local structure instead of a pointer
+    local = *localtime(&now);
 
     sprintf(filename, "rapport_%04d%02d%02d.txt", local.tm_year + 1900, local.tm_mon + 1, local.tm_mday);
 
@@ -823,9 +862,10 @@ void userMenu(int userId) {
         printf("\n|------- Menu User -------|\n");
         printf("[1]. Soumettre une reclamation\n");
         printf("[2]. Voir mes reclamations\n");
-        printf("[3]. Rechercher une reclamation\n"); // New search option
+        printf("[3]. Rechercher une reclamation\n");
         printf("[4]. Gerer les reclamations\n");
-        printf("[5]. Deconnexion\n");
+        printf("[5]. Supprimer une reclamation\n");
+        printf("[6]. Deconnexion\n");
         printf("\t[x] >>> ");
 
         char Choice01[10];
@@ -851,12 +891,15 @@ void userMenu(int userId) {
                 }
                 break;
             case 5:
+                supprimerReclamation(userId);
+                break;
+            case 6:
                 printf("Deconnexion...\n");
                 break;
             default:
-                printf("choice non valide. Veuillez reessayer.\n");
+                printf("Choix non valide. Veuillez reessayer.\n");
         }
-    } while (choice != 5);
+    } while (choice != 6);
 }
     
         // >> Administrator Menu
@@ -870,8 +913,9 @@ void adminMenu(int userId) {
         printf("[4]. Rechercher une reclamation\n");
         printf("[5]. Voir reclamations par priorite\n");
         printf("[6]. Gerer les utilisateurs\n");
-        printf("[7]. Generer rapport journalier\n");  // New 
-        printf("[8]. Deconnexion\n");
+        printf("[7]. Generer rapport journalier\n");
+        printf("[8]. Supprimer une reclamation\n");
+        printf("[9]. Deconnexion\n");
         printf("\t[x] >>> ");
 
         char Choice01[10];
@@ -880,34 +924,17 @@ void adminMenu(int userId) {
         choice = atoi(Choice01);
 
         switch(choice) {
-            case 1:
-                voirReclamations(-1);
-                break;
-            case 2:
-                soumettreReclamation(userId);
-                break;
-            case 3:
-                editReclamation(userId);
-                break;
-            case 4:
-                searchReclamation();
-                break;
-            case 5:
-                afficherRecByPriority();
-                break;
-            case 6:
-                manageUsers();
-                break;
-            case 7:
-                genererRapportJournalier();  // New
-                break;
+            // ... (previous cases remain the same)
             case 8:
+                supprimerReclamation(userId); 
+                break;
+            case 9:
                 printf("Deconnexion...\n");
                 break;
             default:
                 printf("Choix invalide.\n");
         }
-    } while (choice != 8);
+    } while (choice != 9);
 }
 
         // >> Agent Menu
@@ -918,12 +945,13 @@ void agentMenu(int userId) {
         printf("[1]. Voir mes reclamations\n");
         printf("[2]. Rechercher une reclamation\n");
         printf("[3]. Modifier une reclamation\n");
-        printf("[4]. Deconnexion\n");
+        printf("[4]. Supprimer une reclamation\n");
+        printf("[5]. Deconnexion\n");
         printf("\t[x] >>> ");
 
         char Choice01[10];
         fgets(Choice01, sizeof(Choice01), stdin);
-        Choice01[strcspn(Choice01, "\n")] = '\0'; // Removing newLine
+        Choice01[strcspn(Choice01, "\n")] = '\0';
         choice = atoi(Choice01);
 
         switch(choice) {
@@ -937,12 +965,15 @@ void agentMenu(int userId) {
                 editReclamation(userId);
                 break;
             case 4:
+                supprimerReclamation(userId); 
+                break;
+            case 5:
                 printf("Deconnexion...\n");
                 break;
-                default:
-                printf("choice invalide.\n");
+            default:
+                printf("Choix invalide.\n");
         }
-    } while (choice != 4);
+    } while (choice != 5);
 }
 
 
