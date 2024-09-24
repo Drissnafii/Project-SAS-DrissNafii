@@ -66,6 +66,7 @@ void voirReclamations(int userId);                  //
 void editReclamation(int userId);                  // >> Reclamations Management Functions
 void searchReclamation();                         //
 void afficherRecByPriority();                    //
+void genererRapportJournalier();                //
 
 int isValidee(const char* nom, const char* password); // >> For password validation
 
@@ -716,6 +717,47 @@ void afficherRecByPriority() {
     }
 }
 
+        // >> Generate Daily Report
+void genererRapportJournalier() {
+    time_t now;
+    struct tm local;
+    char filename[50];
+    FILE *file;
+    int i;
+
+    time(&now);
+    local = *localtime(&now); // Use a local structure instead of a pointer
+
+    sprintf(filename, "rapport_%04d%02d%02d.txt", local.tm_year + 1900, local.tm_mon + 1, local.tm_mday);
+
+    file = fopen(filename, "w");
+    if (file == NULL) {
+        printf("Erreur lors de la creation du fichier de rapport.\n");
+        return;
+    }
+
+    fprintf(file, "Rapport Journalier - %02d/%02d/%04d\n\n", local.tm_mday, local.tm_mon + 1, local.tm_year + 1900);
+    fprintf(file, "Nouvelles Reclamations:\n");
+
+    for (i = 0; i < nbrReclamations; i++) {
+        if (reclamations[i].dateSubmission >= now - 86400) { // Last 24 hours
+            fprintf(file, "ID: %d, Motif: %s, Categorie: %s\n", 
+                    reclamations[i].id, reclamations[i].motif, reclamations[i].categorie);
+        }
+    }
+
+    fprintf(file, "\nReclamations Resolues:\n");
+    
+    for (i = 0; i < nbrReclamations; i++) {
+        if (reclamations[i].statut == 2 && reclamations[i].dateSubmission >= now - 86400) {
+            fprintf(file, "ID: %d, Motif: %s, Categorie: %s\n", 
+                    reclamations[i].id, reclamations[i].motif, reclamations[i].categorie);
+        }
+    }
+
+    fclose(file);
+    printf("Rapport genere avec succes: %s\n", filename);
+}
 
 
     // [3] Validation of inputs :
@@ -828,12 +870,13 @@ void adminMenu(int userId) {
         printf("[4]. Rechercher une reclamation\n");
         printf("[5]. Voir reclamations par priorite\n");
         printf("[6]. Gerer les utilisateurs\n");
-        printf("[7]. Deconnexion\n");
+        printf("[7]. Generer rapport journalier\n");  // New 
+        printf("[8]. Deconnexion\n");
         printf("\t[x] >>> ");
 
         char Choice01[10];
         fgets(Choice01, sizeof(Choice01), stdin);
-        Choice01[strcspn(Choice01, "\n")] = '\0'; // Removing newLine
+        Choice01[strcspn(Choice01, "\n")] = '\0';
         choice = atoi(Choice01);
 
         switch(choice) {
@@ -856,12 +899,15 @@ void adminMenu(int userId) {
                 manageUsers();
                 break;
             case 7:
+                genererRapportJournalier();  // New
+                break;
+            case 8:
                 printf("Deconnexion...\n");
                 break;
             default:
                 printf("Choix invalide.\n");
         }
-    } while (choice != 7);
+    } while (choice != 8);
 }
 
         // >> Agent Menu
