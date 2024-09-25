@@ -159,7 +159,8 @@ void inscrire() {
     newUser.Locked = false;
 
     Users[nbrUsers++] = newUser;
-    printf("L'utilisateur est enregistre avec succes.\n");
+    printf("\t__________________________________________\n");
+    printf("\t|>> L'utilisateur est enregistre avec succes.\n");
 }
 
         // >> Sign In
@@ -259,7 +260,7 @@ void soumettreReclamation(int userId) {
 
     while (1) {
         printf("Pour que nous acceptions votre Reclamation, \nvous devez suivre les etapes suivantes pour avoir\nune vue d'ensemble de votre Reclamation.\n");
-        printf("\t[x] Le motif (de 3 a 8 mots) >> ");
+        printf("\n\n>> Entrez le Motif : ");
         fgets(newReclamation.motif, sizeof(newReclamation.motif), stdin);
         newReclamation.motif[strcspn(newReclamation.motif, "\n")] = 0;
 
@@ -724,7 +725,7 @@ void searchReclamation() {
 
         // >> See Reclamations by priority
 void afficherRecByPriority() {
-    // Step 1: Create a temporary array of reclamations
+    //.
     Reclamation sortedReclamations[MAX_RECLAMATIONS];
     
     // Step 2: Copy all reclamations to the temporary array
@@ -847,8 +848,8 @@ int isValidee(const char* nom, const char* password) {
 
         // >> Displaying the Main Menu
 void afficherMenuPrincipal() {
-    printf("\n|___________\n");
-    printf("\n| Menu Principal:\n");
+    printf("___________\n");
+    printf("| Menu Principal:\n");
     printf(" [1] S'inscrire\n");
     printf(" [2] Se connecter\n");
     printf(" [3] Quitter\n");
@@ -863,9 +864,10 @@ void userMenu(int userId) {
         printf("[1]. Soumettre une reclamation\n");
         printf("[2]. Voir mes reclamations\n");
         printf("[3]. Rechercher une reclamation\n");
-        printf("[4]. Gerer les reclamations\n");
-        printf("[5]. Supprimer une reclamation\n");
+        printf("[4]. Gerer mes reclamations\n");
+        printf("[5]. Supprimer mes reclamation\n");
         printf("[6]. Deconnexion\n");
+        // system("cls");
         printf("\t[x] >>> ");
 
         char Choice01[10];
@@ -924,7 +926,28 @@ void adminMenu(int userId) {
         choice = atoi(Choice01);
 
         switch(choice) {
-            // ... (previous cases remain the same)
+            case 1:
+                voirReclamations(userId);
+                break;
+            case 2:
+                soumettreReclamation(userId);
+                break;
+            case 3:
+                editReclamation(userId);
+                break;
+            case 4:
+                searchReclamation();
+                break;
+            case 5:
+                // afficherRecByPriority();
+                printf("Nous somme entrain de travaileer sur cette fonctionalite\n");
+                break;
+            case 6:
+                manageUsers();
+                break;
+            case 7:
+                genererRapportJournalier();
+                break;      
             case 8:
                 supprimerReclamation(userId); 
                 break;
@@ -942,7 +965,7 @@ void agentMenu(int userId) {
     int choice;
     do {
         printf("\n|------- Menu Agent de Reclamation -------|\n");
-        printf("[1]. Voir mes reclamations\n");
+        printf("[1]. Voir Tous les reclamations\n");
         printf("[2]. Rechercher une reclamation\n");
         printf("[3]. Modifier une reclamation\n");
         printf("[4]. Supprimer une reclamation\n");
