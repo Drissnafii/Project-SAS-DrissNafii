@@ -66,6 +66,7 @@ void editReclamation(int userId);                  //
 void supprimerReclamation(int userId);            // >> Reclamations Management Functions
 void searchReclamation();                        //
 void afficherRecByPriority();                   //
+double calculerTempsMoyenTraitement();
 void genererRapportJournalier();               //
 
 int isValidee(const char* nom, const char* password); // >> For password validation
@@ -756,6 +757,25 @@ void afficherRecByPriority() {
     }
 }
 
+// Fonction pour calculer le temps moyen de traitement des réclamations
+double calculerTempsMoyenTraitement() { // Return a double for average time
+    int reclamationsTraitees = 0;
+    time_t tempsTotalTraitement = 0;
+
+    for (int i = 0; i < nbrReclamations; i++) {
+        if (reclamations[i].statut == 2) { // Réclamation résolue
+            tempsTotalTraitement += difftime(time(NULL), reclamations[i].dateSubmission); // Calculate difference correctly
+            reclamationsTraitees++;
+        }
+    }
+
+    if (reclamationsTraitees > 0) {
+        return (double)tempsTotalTraitement / reclamationsTraitees;
+    } else {
+        return 0.0; // Return 0 if no processed reclamations found
+    }
+}
+
         // >> Generate Daily Report
 void genererRapportJournalier() {
     time_t now;
@@ -792,6 +812,14 @@ void genererRapportJournalier() {
             fprintf(file, "ID: %d, Motif: %s, Categorie: %s\n", 
                     reclamations[i].id, reclamations[i].motif, reclamations[i].categorie);
         }
+    }
+
+    // Calculate and append average processing time to the report
+    double tempsMoyen = calculerTempsMoyenTraitement();
+    if (tempsMoyen > 0) {
+        fprintf(file, "\nTemps moyen de traitement des reclamations: %.2f secondes\n", tempsMoyen);
+    } else {
+        fprintf(file, "\nAucune reclamation traitee pour le moment.\n");
     }
 
     fclose(file);
@@ -915,8 +943,9 @@ void adminMenu(int userId) {
         printf("[5]. Voir reclamations par priorite\n");
         printf("[6]. Gerer les utilisateurs\n");
         printf("[7]. Generer rapport journalier\n");
-        printf("[8]. Supprimer une reclamation\n");
-        printf("[9]. Deconnexion\n");
+        printf("[8]. calculer Temps Moyen de Traitement\n");
+        printf("[9]. Supprimer une reclamation\n");
+        printf("[10]. Deconnexion\n");
         printf("\t[x] >>> ");
 
         char Choice01[10];
@@ -944,19 +973,29 @@ void adminMenu(int userId) {
             case 6:
                 manageUsers();
                 break;
-            case 7:
-                genererRapportJournalier();
-                break;      
-            case 8:
-                supprimerReclamation(userId); 
-                break;
-            case 9:
-                printf("Deconnexion...\n");
-                break;
-            default:
-                printf("Choix invalide.\n");
-        }
-    } while (choice != 9);
+        case 7: 
+            genererRapportJournalier();
+            break;
+        case 8:
+            {
+                double tempsMoyen = calculerTempsMoyenTraitement();
+                if (tempsMoyen > 0) {
+                    printf("Temps moyen de traitement des reclamations: %.2f secondes\n", tempsMoyen);
+                } else {
+                    printf("Aucune reclamation traitee pour le moment.\n");
+                }
+            }
+            break;
+        case 9:
+            supprimerReclamation(userId); 
+            break;
+        case 10:
+            printf("Deconnexion...\n");
+            break;
+        default:
+            printf("Choix invalide.\n");
+    }
+} while (choice != 10);
 }
 
         // >> Agent Menu
