@@ -22,7 +22,7 @@ typedef struct {
     int statut; 
     char clientUsername[50];
     time_t dateSubmission;
-    int priority; // Add this line right here
+    int priority;
 } Reclamation;
 
 // categories of Reclamations
@@ -54,7 +54,6 @@ int countWords(char str[]) {
     }
     return count;
 }
-
 // Function prototypes
 
 void inscrire();       //
